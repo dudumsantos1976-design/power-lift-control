@@ -1,25 +1,26 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, TruckIcon } from "lucide-react";
+import { Loader2, TruckIcon, UserPlus, ArrowLeft } from "lucide-react";
 
-const Login = () => {
+const Signup = () => {
   const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username.trim()) {
+    if (!username.trim() || !fullName.trim()) {
       toast({
         title: "Erro",
-        description: "Por favor, insira seu login",
+        description: "Por favor, preencha todos os campos",
         variant: "destructive",
       });
       return;
@@ -28,34 +29,50 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase
+      // Check if username already exists
+      const { data: existingUser } = await supabase
         .from("operators")
-        .select("*")
+        .select("username")
         .eq("username", username.trim())
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
+      if (existingUser) {
         toast({
-          title: "Acesso Negado",
-          description: "Usuário não cadastrado no sistema",
+          title: "Erro",
+          description: "Este nome de usuário já está em uso",
           variant: "destructive",
         });
         setLoading(false);
         return;
       }
 
-      localStorage.setItem("operator", JSON.stringify(data));
-      
+      // Create new operator
+      const { error } = await supabase
+        .from("operators")
+        .insert([
+          {
+            username: username.trim(),
+            full_name: fullName.trim(),
+          },
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
-        title: "Login realizado",
-        description: `Bem-vindo, ${data.full_name}!`,
+        title: "Cadastro realizado!",
+        description: "Sua conta foi criada com sucesso. Faça login para continuar.",
       });
 
-      navigate("/dashboard");
+      // Navigate to login after successful signup
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Erro ao conectar com o servidor",
+        description: "Erro ao criar conta. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -74,31 +91,46 @@ const Login = () => {
           </div>
           <div>
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              Sistema de Controle
+              Criar Conta
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Gestão de Empilhadeiras
+              Cadastre-se como operador de empilhadeira
             </CardDescription>
           </div>
         </CardHeader>
         
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleSignup} className="space-y-5">
+            <div className="space-y-2">
+              <label htmlFor="fullName" className="text-sm font-semibold text-foreground">
+                Nome Completo
+              </label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Digite seu nome completo"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="h-12 text-base transition-smooth focus:ring-2 focus:ring-primary"
+                disabled={loading}
+              />
+            </div>
+
             <div className="space-y-2">
               <label htmlFor="username" className="text-sm font-semibold text-foreground">
-                Login do Operador
+                Nome de Usuário
               </label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Digite seu login"
+                placeholder="Escolha um nome de usuário"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="h-12 text-base transition-smooth focus:ring-2 focus:ring-primary"
                 disabled={loading}
               />
             </div>
-            
+
             <Button 
               type="submit" 
               className="w-full h-12 text-base font-semibold gradient-primary border-0 shadow-elevated transition-smooth hover:shadow-2xl hover:scale-[1.02]"
@@ -107,27 +139,28 @@ const Login = () => {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Validando...
+                  Criando conta...
                 </>
               ) : (
-                "Entrar no Sistema"
+                <>
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Criar Conta
+                </>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-border space-y-4">
-            <Button 
-              variant="outline" 
-              className="w-full h-12 text-base transition-smooth hover:bg-secondary"
-              onClick={() => navigate("/signup")}
-              disabled={loading}
-            >
-              Criar Nova Conta
-            </Button>
-            
-            <p className="text-xs text-muted-foreground text-center">
-              Usuários de teste: joao.silva, maria.santos, carlos.oliveira
-            </p>
+          <div className="mt-6 pt-6 border-t border-border">
+            <Link to="/">
+              <Button 
+                variant="ghost" 
+                className="w-full h-12 text-base transition-smooth hover:bg-secondary"
+                disabled={loading}
+              >
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Voltar para o Login
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -135,4 +168,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
