@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, TruckIcon } from "lucide-react";
+import { LogOut, TruckIcon, Settings } from "lucide-react";
 import { ForkliftCard } from "@/components/ForkliftCard";
 import { OperationTimer } from "@/components/OperationTimer";
 
@@ -202,14 +202,24 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Sair
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/settings")}
+                className="gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Configurações
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
       </header>
