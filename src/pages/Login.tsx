@@ -51,7 +51,7 @@ const Login = () => {
         description: `Bem-vindo, ${data.full_name}!`,
       });
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       toast({
         title: "Erro",

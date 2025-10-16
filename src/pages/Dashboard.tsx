@@ -33,7 +33,7 @@ const Dashboard = () => {
   useEffect(() => {
     const operatorData = localStorage.getItem("operator");
     if (!operatorData) {
-      navigate("/");
+      navigate("/login");
       return;
     }
     setOperator(JSON.parse(operatorData));
@@ -169,7 +169,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("operator");
-    navigate("/");
+    navigate("/login");
   };
 
   if (loading) {

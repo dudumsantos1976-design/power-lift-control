@@ -67,7 +67,7 @@ const Signup = () => {
 
       // Navigate to login after successful signup
       setTimeout(() => {
-        navigate("/");
+        navigate("/login");
       }, 1500);
     } catch (error) {
       toast({
@@ -151,7 +151,7 @@ const Signup = () => {
           </form>
 
           <div className="mt-6 pt-6 border-t border-border">
-            <Link to="/">
+            <Link to="/login">
               <Button 
                 variant="ghost" 
                 className="w-full h-12 text-base transition-smooth hover:bg-secondary"
