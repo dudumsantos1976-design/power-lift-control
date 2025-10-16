@@ -47,6 +47,7 @@ INSERT INTO public.operators (username, full_name) VALUES
   ('joao.silva', 'João Silva'),
   ('maria.santos', 'Maria Santos'),
   ('carlos.oliveira', 'Carlos Oliveira');
+  ('alice', 'Alice Boschetti');
 
 -- Insert sample forklifts
 INSERT INTO public.forklifts (name, code, status, esp32_id) VALUES
