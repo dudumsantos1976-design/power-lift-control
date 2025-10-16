@@ -96,13 +96,24 @@ const Dashboard = () => {
       setCurrentLogId(logData.id);
       setSelectedForklift(forklift);
 
+      // Send MQTT command to ESP32
+      const mqttResult = await supabase.functions.invoke('mqtt-control', {
+        body: { 
+          esp32_id: forklift.esp32_id,
+          action: 'login'
+        }
+      });
+
+      if (mqttResult.error) {
+        console.error('MQTT Error:', mqttResult.error);
+      } else {
+        console.log('MQTT Success:', mqttResult.data);
+      }
+
       toast({
         title: "Empilhadeira Ativada",
         description: `${forklift.name} está pronta para uso`,
       });
-
-      // Here you would send MQTT message to ESP32
-      console.log(`MQTT: Login efetuado para ${forklift.esp32_id}`);
     } catch (error) {
       toast({
         title: "Erro",
@@ -147,13 +158,24 @@ const Dashboard = () => {
 
       if (updateError) throw updateError;
 
+      // Send MQTT command to ESP32
+      const mqttResult = await supabase.functions.invoke('mqtt-control', {
+        body: { 
+          esp32_id: selectedForklift.esp32_id,
+          action: 'logout'
+        }
+      });
+
+      if (mqttResult.error) {
+        console.error('MQTT Error:', mqttResult.error);
+      } else {
+        console.log('MQTT Success:', mqttResult.data);
+      }
+
       toast({
         title: "Operação Finalizada",
         description: `Tempo total: ${Math.floor(durationSeconds / 60)}min ${durationSeconds % 60}s`,
       });
-
-      // Here you would send MQTT message to ESP32 to turn off
-      console.log(`MQTT: Desligar ${selectedForklift.esp32_id}`);
 
       setSelectedForklift(null);
       setCurrentLogId(null);
